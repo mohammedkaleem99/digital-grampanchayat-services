@@ -1,4 +1,4 @@
-# 🏛️ Digital Gram Panchayat Services — UPGRADED
+# 🏛️ Digital Gram Panchayat Services
 
 A full-stack digital portal for Gram Panchayat services with Flask backend, MySQL database,
 and a modern government-style frontend.
