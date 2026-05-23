@@ -1,0 +1,534 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard — Gram Panchayat</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <!-- Notification Toast -->
+    <div id="notification"></div>
+
+    <!-- ======== NAVBAR ======== -->
+    <nav class="navbar">
+        <div class="navbar-brand">
+            <div class="brand-icon"><i class="fas fa-landmark"></i></div>
+            <div class="brand-text">
+                Digital Gram Panchayat
+                <small>Rural Services Portal</small>
+            </div>
+        </div>
+
+        <ul class="navbar-nav">
+            <li class="nav-item"><a href="#" onclick="switchTab('services')" class="active"><i class="fas fa-th-large"></i> Services</a></li>
+            <li class="nav-item"><a href="#" onclick="switchTab('my-applications')"><i class="fas fa-file-alt"></i> My Applications</a></li>
+            <li class="nav-item"><a href="#" onclick="switchTab('schemes')"><i class="fas fa-bell"></i> Schemes</a></li>
+            <li class="nav-item"><a href="#" onclick="switchTab('complaints')"><i class="fas fa-comment-dots"></i> Complaints</a></li>
+        </ul>
+
+        <div class="navbar-end">
+            <div class="user-info" id="navbar-user">
+                <strong>Loading...</strong>
+                <small>Citizen</small>
+            </div>
+            <button class="btn btn-danger btn-sm" onclick="logout()">
+                <i class="fas fa-sign-out-alt"></i> Logout
+            </button>
+            <button class="navbar-toggler" onclick="toggleSidebar()">
+                <i class="fas fa-bars"></i>
+            </button>
+        </div>
+    </nav>
+
+    <div class="page-wrapper">
+        <!-- ======== SIDEBAR ======== -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <p>Navigation</p>
+            </div>
+            <nav class="sidebar-nav">
+                <div class="nav-section-title">Services</div>
+                <a class="nav-link active" onclick="switchTab('services', this)">
+                    <i class="fas fa-th-large"></i> Apply for Services
+                </a>
+                <a class="nav-link" onclick="switchTab('my-applications', this)">
+                    <i class="fas fa-file-alt"></i> My Applications
+                </a>
+                <a class="nav-link" onclick="switchTab('track', this)">
+                    <i class="fas fa-search"></i> Track Status
+                </a>
+
+                <div class="nav-section-title">Community</div>
+                <a class="nav-link" onclick="switchTab('schemes', this)">
+                    <i class="fas fa-bell"></i> Govt Schemes
+                </a>
+                <a class="nav-link" onclick="switchTab('complaints', this)">
+                    <i class="fas fa-comment-dots"></i> File Complaint
+                </a>
+            </nav>
+
+            <div class="sidebar-footer">
+                <button class="btn btn-danger btn-full btn-sm" onclick="logout()">
+                    <i class="fas fa-sign-out-alt"></i> Logout
+                </button>
+            </div>
+        </aside>
+
+        <!-- ======== MAIN CONTENT ======== -->
+        <main class="main-content">
+
+            <!-- ---- TAB: Services ---- -->
+            <section id="tab-services">
+                <div class="page-header">
+                    <h1><i class="fas fa-th-large" style="color:var(--primary)"></i> Available Services</h1>
+                    <p>Select a service to apply online. Your application will be processed within 7 working days.</p>
+                </div>
+                <div class="services-grid" id="services-container">
+                    <!-- Loaded dynamically -->
+                    <div style="grid-column:1/-1; text-align:center; padding:3rem; color:var(--text-muted);">
+                        <i class="fas fa-spinner fa-spin fa-2x"></i>
+                        <p style="margin-top:0.75rem;">Loading services...</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ---- TAB: My Applications ---- -->
+            <section id="tab-my-applications" class="hidden">
+                <div class="page-header">
+                    <h1><i class="fas fa-file-alt" style="color:var(--primary)"></i> My Applications</h1>
+                    <p>Track all your service applications and download approved certificates.</p>
+                </div>
+
+                <div class="card">
+                    <div class="table-responsive">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>Service Name</th>
+                                    <th>Applied On</th>
+                                    <th>Status</th>
+                                    <th>Certificate</th>
+                                </tr>
+                            </thead>
+                            <tbody id="my-apps-table">
+                                <tr><td colspan="5" style="text-align:center; padding:2rem; color:var(--text-muted);">
+                                    <i class="fas fa-spinner fa-spin"></i> Loading...
+                                </td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ---- TAB: Track ---- -->
+            <section id="tab-track" class="hidden">
+                <div class="page-header">
+                    <h1><i class="fas fa-search" style="color:var(--primary)"></i> Application Tracker</h1>
+                    <p>View detailed status of your applications.</p>
+                </div>
+                <div class="card">
+                    <div id="track-content">
+                        <p style="color:var(--text-muted); text-align:center; padding:2rem;">
+                            <i class="fas fa-info-circle"></i>
+                            Go to "My Applications" tab and click on an application to track it here.
+                        </p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ---- TAB: Schemes ---- -->
+            <section id="tab-schemes" class="hidden">
+                <div class="page-header">
+                    <h1><i class="fas fa-bell" style="color:var(--primary)"></i> Government Schemes</h1>
+                    <p>Stay updated with the latest central & state government schemes for rural citizens.</p>
+                </div>
+                <div class="schemes-grid" id="schemes-container">
+                    <div style="grid-column:1/-1; text-align:center; padding:3rem; color:var(--text-muted);">
+                        <i class="fas fa-spinner fa-spin fa-2x"></i>
+                        <p style="margin-top:0.75rem;">Loading schemes...</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ---- TAB: Complaints ---- -->
+            <section id="tab-complaints" class="hidden">
+                <div class="page-header">
+                    <h1><i class="fas fa-comment-dots" style="color:var(--primary)"></i> File a Complaint</h1>
+                    <p>Report any civic issues. Our AI auto-prioritizes urgent complaints.</p>
+                </div>
+
+                <div class="card" style="max-width:680px; margin-bottom:2rem;">
+                    <div class="card-header-section">
+                        <h3><i class="fas fa-pen-alt"></i> New Complaint</h3>
+                    </div>
+                    <form onsubmit="handleComplaintSubmit(event)">
+                        <div class="form-group">
+                            <label for="complaint-msg">Complaint Description <span class="required">*</span></label>
+                            <textarea id="complaint-msg" class="form-control" rows="5" required
+                                placeholder="Describe your issue clearly (roads, water, electricity, sanitation, etc.)..."></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-paper-plane"></i> Submit Complaint
+                        </button>
+                    </form>
+                </div>
+
+                <div class="card">
+                    <div class="card-header-section">
+                        <h3><i class="fas fa-list-alt"></i> My Complaints</h3>
+                    </div>
+                    <div class="table-responsive">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>Message</th>
+                                    <th>Filed On</th>
+                                    <th>Priority</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody id="my-complaints-table">
+                                <tr><td colspan="5" style="text-align:center; padding:2rem; color:var(--text-muted);">
+                                    No complaints filed yet.
+                                </td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+        </main>
+    </div>
+
+    <!-- ======== SERVICE APPLICATION MODAL ======== -->
+    <div class="modal-overlay" id="service-modal">
+        <div class="modal-box" style="max-width:700px;">
+            <div class="modal-header">
+                <h3 id="modal-service-title"><i class="fas fa-file-alt"></i> Service Application</h3>
+                <button class="modal-close" onclick="closeModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="service-application-form" onsubmit="submitServiceApplication(event)">
+                    <input type="hidden" id="form-service-id">
+                    <div id="dynamic-form-fields">
+                        <!-- Built dynamically per service -->
+                    </div>
+                    <div class="modal-footer" style="padding:1rem 0 0; margin-top:1rem; border-top:1px solid #e9ecef;">
+                        <button type="button" class="btn btn-outline" onclick="closeModal()">
+                            <i class="fas fa-times"></i> Cancel
+                        </button>
+                        <button type="submit" class="btn btn-primary" id="submit-app-btn">
+                            <i class="fas fa-paper-plane"></i> Submit Application
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/app.js"></script>
+    <script>
+    // =================================================================
+    // Dashboard Page Script
+    // =================================================================
+
+    let currentUser = null;
+    let allTabs = ['services', 'my-applications', 'track', 'schemes', 'complaints'];
+
+    // On page load
+    document.addEventListener('DOMContentLoaded', () => {
+        currentUser = checkAuth('user');   // redirects if not logged in
+        if (!currentUser) return;
+
+        // Show user name in navbar
+        document.getElementById('navbar-user').innerHTML = `
+            <strong>${currentUser.name}</strong>
+            <small>${currentUser.role}</small>
+        `;
+
+        // Load initial data
+        loadServices();
+        loadMyApplications();
+        loadSchemes();
+        loadMyComplaints();
+    });
+
+    // -------------------------------------------------------
+    // Tab switching
+    // -------------------------------------------------------
+    function switchTab(tabId, el) {
+        // Hide all tabs
+        allTabs.forEach(t => {
+            const el = document.getElementById(`tab-${t}`);
+            if (el) el.classList.add('hidden');
+        });
+
+        // Show selected
+        const target = document.getElementById(`tab-${tabId}`);
+        if (target) target.classList.remove('hidden');
+
+        // Update sidebar active links
+        document.querySelectorAll('.sidebar-nav .nav-link').forEach(l => l.classList.remove('active'));
+        if (el) el.classList.add('active');
+    }
+
+    // -------------------------------------------------------
+    // Load Services and render cards
+    // -------------------------------------------------------
+    async function loadServices() {
+        try {
+            const res = await fetch(`${API_BASE}/services`);
+            const services = await res.json();
+            const container = document.getElementById('services-container');
+            container.innerHTML = '';
+
+            services.forEach(s => {
+                const card = document.createElement('div');
+                card.className = 'service-card';
+                card.innerHTML = `
+                    <div class="service-icon">
+                        <i class="fas ${s.icon || 'fa-file-alt'}"></i>
+                    </div>
+                    <h4>${s.service_name}</h4>
+                    <p>${s.description || ''}</p>
+                    <button class="btn btn-primary btn-sm btn-full"
+                            onclick="openServiceForm(${s.id}, '${s.service_name}')">
+                        <i class="fas fa-pen"></i> Apply Now
+                    </button>
+                `;
+                container.appendChild(card);
+            });
+        } catch (e) {
+            document.getElementById('services-container').innerHTML =
+                `<div style="grid-column:1/-1; text-align:center; color:var(--danger); padding:2rem;">
+                    <i class="fas fa-exclamation-circle fa-2x"></i>
+                    <p style="margin-top:0.75rem;">Could not load services. Is the Flask server running?</p>
+                </div>`;
+        }
+    }
+
+    // -------------------------------------------------------
+    // Open Service Application Modal
+    // -------------------------------------------------------
+    function openServiceForm(serviceId, serviceName) {
+        document.getElementById('modal-service-title').innerHTML =
+            `<i class="fas fa-file-alt"></i> ${serviceName} — Application Form`;
+        document.getElementById('form-service-id').value = serviceId;
+
+        // Build the dynamic form for this service
+        const fieldsHtml = buildServiceForm(serviceId);
+        document.getElementById('dynamic-form-fields').innerHTML = fieldsHtml;
+
+        // Show modal
+        document.getElementById('service-modal').classList.add('open');
+        document.body.style.overflow = 'hidden';
+    }
+
+    function closeModal() {
+        document.getElementById('service-modal').classList.remove('open');
+        document.body.style.overflow = '';
+    }
+
+    // Close modal when clicking backdrop
+    document.getElementById('service-modal').addEventListener('click', function(e) {
+        if (e.target === this) closeModal();
+    });
+
+    // -------------------------------------------------------
+    // Submit Service Application Form (multipart)
+    // -------------------------------------------------------
+    async function submitServiceApplication(e) {
+        e.preventDefault();
+
+        const btn = document.getElementById('submit-app-btn');
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Submitting...';
+
+        const serviceId = document.getElementById('form-service-id').value;
+        const formEl    = document.getElementById('service-application-form');
+
+        // Use FormData to handle both text fields and file uploads
+        const formData = new FormData(formEl);
+        formData.append('user_id', currentUser.id);
+        formData.append('service_id', serviceId);
+
+        try {
+            const res = await fetch(`${API_BASE}/applications`, {
+                method: 'POST',
+                body: formData   // NO Content-Type header — browser sets it with boundary
+            });
+            const data = await res.json();
+
+            if (res.ok) {
+                showNotification(`✅ Application submitted! ID: #${data.application_id}`, 'success');
+                closeModal();
+                loadMyApplications();
+                // Switch to My Applications tab
+                switchTab('my-applications');
+            } else {
+                showNotification(data.error || 'Submission failed', 'error');
+            }
+        } catch (err) {
+            showNotification('Network error. Check Flask server.', 'error');
+        } finally {
+            btn.disabled = false;
+            btn.innerHTML = '<i class="fas fa-paper-plane"></i> Submit Application';
+        }
+    }
+
+    // -------------------------------------------------------
+    // Load My Applications table
+    // -------------------------------------------------------
+    async function loadMyApplications() {
+        try {
+            const res = await fetch(`${API_BASE}/applications/user/${currentUser.id}`);
+            const apps = await res.json();
+            const tbody = document.getElementById('my-apps-table');
+            tbody.innerHTML = '';
+
+            if (!apps.length) {
+                tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; padding:2rem; color:var(--text-muted);">
+                    No applications yet. <a href="#" onclick="switchTab('services')" style="color:var(--primary);">Apply now →</a>
+                </td></tr>`;
+                return;
+            }
+
+            apps.forEach(app => {
+                // Certificate button if approved
+                let certCell = '—';
+                if (app.status === 'Approved') {
+                    certCell = `<a href="${API_BASE}/certificates/download/${app.id}"
+                                   target="_blank"
+                                   class="btn btn-success btn-sm">
+                                   <i class="fas fa-download"></i> Download PDF
+                               </a>`;
+                } else if (app.status === 'Pending') {
+                    certCell = '<span style="color:var(--text-muted); font-size:0.8rem;">Awaiting approval</span>';
+                } else {
+                    certCell = '<span style="color:var(--danger); font-size:0.8rem;">Not available</span>';
+                }
+
+                tbody.innerHTML += `
+                    <tr>
+                        <td><strong>#${app.id}</strong></td>
+                        <td>${app.service_name}</td>
+                        <td>${fmtDate(app.date)}</td>
+                        <td>${statusBadge(app.status)}</td>
+                        <td>${certCell}</td>
+                    </tr>
+                `;
+            });
+        } catch (e) {
+            console.error(e);
+        }
+    }
+
+    // -------------------------------------------------------
+    // Load Government Schemes
+    // -------------------------------------------------------
+    async function loadSchemes() {
+        try {
+            const res = await fetch(`${API_BASE}/schemes`);
+            const schemes = await res.json();
+            const container = document.getElementById('schemes-container');
+            container.innerHTML = '';
+
+            if (!schemes.length) {
+                container.innerHTML = `<div style="grid-column:1/-1; text-align:center; padding:3rem; color:var(--text-muted);">
+                    <i class="fas fa-info-circle fa-2x"></i>
+                    <p style="margin-top:0.75rem;">No schemes available right now.</p>
+                </div>`;
+                return;
+            }
+
+            schemes.forEach(s => {
+                container.innerHTML += `
+                    <div class="scheme-card">
+                        <div class="scheme-card-banner"></div>
+                        <div class="scheme-card-body">
+                            <h4><i class="fas fa-star" style="color:var(--accent);"></i> ${s.title}</h4>
+                            <p>${s.description}</p>
+                            <div class="scheme-meta">
+                                ${s.benefits ? `<span class="scheme-tag"><i class="fas fa-gift"></i> ${s.benefits}</span>` : ''}
+                                ${s.scheme_date ? `<span class="scheme-tag"><i class="fas fa-calendar"></i> ${fmtDate(s.scheme_date)}</span>` : ''}
+                            </div>
+                            ${s.eligibility ? `<p style="font-size:0.8rem;"><strong>Eligibility:</strong> ${s.eligibility}</p>` : ''}
+                            ${s.source_url ? `<a href="${s.source_url}" target="_blank" class="btn btn-outline btn-sm" style="margin-top:0.75rem;">
+                                <i class="fas fa-external-link-alt"></i> Official Website
+                            </a>` : ''}
+                        </div>
+                    </div>
+                `;
+            });
+        } catch (e) {
+            console.error(e);
+        }
+    }
+
+    // -------------------------------------------------------
+    // Submit Complaint
+    // -------------------------------------------------------
+    async function handleComplaintSubmit(e) {
+        e.preventDefault();
+        const msg = document.getElementById('complaint-msg').value;
+
+        try {
+            const res = await fetch(`${API_BASE}/complaints`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ user_id: currentUser.id, message: msg })
+            });
+            const data = await res.json();
+            if (res.ok) {
+                showNotification(`Complaint submitted! Priority: ${data.urgency_assigned.toUpperCase()}`, 'success');
+                document.getElementById('complaint-msg').value = '';
+                loadMyComplaints();
+            } else {
+                showNotification(data.error, 'error');
+            }
+        } catch (e) {
+            showNotification('Network error', 'error');
+        }
+    }
+
+    // -------------------------------------------------------
+    // Load My Complaints
+    // -------------------------------------------------------
+    async function loadMyComplaints() {
+        try {
+            const res = await fetch(`${API_BASE}/complaints/user/${currentUser.id}`);
+            const complaints = await res.json();
+            const tbody = document.getElementById('my-complaints-table');
+            tbody.innerHTML = '';
+
+            if (!complaints.length) {
+                tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; padding:1.5rem; color:var(--text-muted);">
+                    No complaints filed yet.
+                </td></tr>`;
+                return;
+            }
+
+            complaints.forEach(c => {
+                // Truncate long messages
+                const msg = c.message.length > 80 ? c.message.substring(0, 80) + '...' : c.message;
+                tbody.innerHTML += `
+                    <tr>
+                        <td><strong>#${c.id}</strong></td>
+                        <td>${msg}</td>
+                        <td>${fmtDate(c.date)}</td>
+                        <td>${statusBadge(c.urgency_level)}</td>
+                        <td>${statusBadge(c.status)}</td>
+                    </tr>
+                `;
+            });
+        } catch (e) {
+            console.error(e);
+        }
+    }
+    </script>
+</body>
+</html>

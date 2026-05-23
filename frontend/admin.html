@@ -1,0 +1,813 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard — Gram Panchayat</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <!-- Notification Toast -->
+    <div id="notification"></div>
+
+    <!-- ======== NAVBAR ======== -->
+    <nav class="navbar">
+        <div class="navbar-brand">
+            <div class="brand-icon"><i class="fas fa-shield-alt"></i></div>
+            <div class="brand-text">
+                GP Admin Portal
+                <small>Gram Panchayat Management System</small>
+            </div>
+        </div>
+
+        <ul class="navbar-nav">
+            <li class="nav-item"><a href="#" onclick="switchTab('analytics', this)" class="active"><i class="fas fa-chart-bar"></i> Analytics</a></li>
+            <li class="nav-item"><a href="#" onclick="switchTab('applications', this)"><i class="fas fa-file-alt"></i> Applications</a></li>
+            <li class="nav-item"><a href="#" onclick="switchTab('complaints', this)"><i class="fas fa-comment-dots"></i> Complaints</a></li>
+            <li class="nav-item"><a href="#" onclick="switchTab('schemes', this)"><i class="fas fa-bell"></i> Schemes</a></li>
+        </ul>
+
+        <div class="navbar-end">
+            <div class="user-info">
+                <strong id="admin-name">Admin</strong>
+                <small>Administrator</small>
+            </div>
+            <button class="btn btn-danger btn-sm" onclick="logout()">
+                <i class="fas fa-sign-out-alt"></i> Logout
+            </button>
+            <button class="navbar-toggler" onclick="toggleSidebar()">
+                <i class="fas fa-bars"></i>
+            </button>
+        </div>
+    </nav>
+
+    <div class="page-wrapper">
+        <!-- ======== SIDEBAR ======== -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <p>Admin Panel</p>
+            </div>
+            <nav class="sidebar-nav">
+                <div class="nav-section-title">Overview</div>
+                <a class="nav-link active" onclick="switchTab('analytics', this)">
+                    <i class="fas fa-chart-bar"></i> Analytics
+                </a>
+
+                <div class="nav-section-title">Manage</div>
+                <a class="nav-link" onclick="switchTab('applications', this)">
+                    <i class="fas fa-file-alt"></i> Applications
+                </a>
+                <a class="nav-link" onclick="switchTab('complaints', this)">
+                    <i class="fas fa-comment-dots"></i> Complaints
+                </a>
+                <a class="nav-link" onclick="switchTab('schemes', this)">
+                    <i class="fas fa-bell"></i> Govt Schemes
+                </a>
+            </nav>
+
+            <div class="sidebar-footer">
+                <button class="btn btn-danger btn-full btn-sm" onclick="logout()">
+                    <i class="fas fa-sign-out-alt"></i> Logout
+                </button>
+            </div>
+        </aside>
+
+        <!-- ======== MAIN CONTENT ======== -->
+        <main class="main-content">
+
+            <!-- ===== TAB: Analytics ===== -->
+            <section id="tab-analytics">
+                <div class="page-header">
+                    <h1><i class="fas fa-chart-bar" style="color:var(--primary)"></i> System Analytics</h1>
+                    <p>Overview of all applications, complaints, and scheme activity.</p>
+                </div>
+
+                <!-- Stats Cards Row -->
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon"><i class="fas fa-users"></i></div>
+                        <div class="stat-info">
+                            <h4 id="stat-users">0</h4>
+                            <p>Total Citizens</p>
+                        </div>
+                    </div>
+                    <div class="stat-card green">
+                        <div class="stat-icon"><i class="fas fa-file-alt"></i></div>
+                        <div class="stat-info">
+                            <h4 id="stat-apps">0</h4>
+                            <p>Total Applications</p>
+                        </div>
+                    </div>
+                    <div class="stat-card orange">
+                        <div class="stat-icon"><i class="fas fa-comment-dots"></i></div>
+                        <div class="stat-info">
+                            <h4 id="stat-comps">0</h4>
+                            <p>Total Complaints</p>
+                        </div>
+                    </div>
+                    <div class="stat-card red">
+                        <div class="stat-icon"><i class="fas fa-exclamation-triangle"></i></div>
+                        <div class="stat-info">
+                            <h4 id="stat-urgent">0</h4>
+                            <p>Urgent Complaints</p>
+                        </div>
+                    </div>
+                    <div class="stat-card teal">
+                        <div class="stat-icon"><i class="fas fa-bell"></i></div>
+                        <div class="stat-info">
+                            <h4 id="stat-schemes">0</h4>
+                            <p>Active Schemes</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Charts Row -->
+                <div style="display:grid; grid-template-columns: 1fr 1fr; gap:1.5rem; margin-top:1rem;">
+                    <div class="card">
+                        <div class="card-header-section">
+                            <h3><i class="fas fa-pie-chart"></i> Applications by Status</h3>
+                        </div>
+                        <canvas id="appsChart" height="220"></canvas>
+                    </div>
+                    <div class="card">
+                        <div class="card-header-section">
+                            <h3><i class="fas fa-chart-bar"></i> Complaints by Status</h3>
+                        </div>
+                        <canvas id="compsChart" height="220"></canvas>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ===== TAB: Applications ===== -->
+            <section id="tab-applications" class="hidden">
+                <div class="page-header">
+                    <h1><i class="fas fa-file-alt" style="color:var(--primary)"></i> Manage Applications</h1>
+                    <p>Review, approve or reject citizen service applications. Approving auto-generates a downloadable certificate.</p>
+                </div>
+
+                <!-- Filter Row -->
+                <div class="card" style="margin-bottom:1.25rem; padding:1rem 1.5rem;">
+                    <div style="display:flex; gap:1rem; align-items:center; flex-wrap:wrap;">
+                        <select id="filter-status" class="form-control" style="width:180px;"
+                                onchange="filterApplicationsTable()">
+                            <option value="">All Statuses</option>
+                            <option>Pending</option>
+                            <option>Approved</option>
+                            <option>Rejected</option>
+                        </select>
+                        <input type="text" id="filter-search" class="form-control" style="width:240px;"
+                               placeholder="Search applicant / service..."
+                               oninput="filterApplicationsTable()">
+                        <button class="btn btn-outline btn-sm" onclick="loadAdminApplications()">
+                            <i class="fas fa-sync-alt"></i> Refresh
+                        </button>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="table-responsive">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>Applicant</th>
+                                    <th>Contact</th>
+                                    <th>Service</th>
+                                    <th>Applied On</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="admin-apps-table">
+                                <tr><td colspan="7" style="text-align:center; padding:2rem; color:var(--text-muted);">
+                                    <i class="fas fa-spinner fa-spin"></i> Loading...
+                                </td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ===== TAB: Complaints ===== -->
+            <section id="tab-complaints" class="hidden">
+                <div class="page-header">
+                    <h1><i class="fas fa-comment-dots" style="color:var(--primary)"></i> Manage Complaints</h1>
+                    <p>Review and resolve citizen complaints. Urgent ones are highlighted.</p>
+                </div>
+
+                <div class="card">
+                    <div class="table-responsive">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>Citizen</th>
+                                    <th>Message</th>
+                                    <th>Filed On</th>
+                                    <th>Priority</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="admin-comps-table">
+                                <tr><td colspan="7" style="text-align:center; padding:2rem; color:var(--text-muted);">
+                                    <i class="fas fa-spinner fa-spin"></i> Loading...
+                                </td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ===== TAB: Schemes ===== -->
+            <section id="tab-schemes" class="hidden">
+                <div class="page-header">
+                    <h1><i class="fas fa-bell" style="color:var(--primary)"></i> Government Schemes</h1>
+                    <p>Add, manage and publish government scheme notifications for citizens.</p>
+                </div>
+
+                <!-- Add Scheme Form -->
+                <div class="card" style="margin-bottom:1.75rem;">
+                    <div class="card-header-section">
+                        <h3><i class="fas fa-plus-circle"></i> Add New Scheme</h3>
+                    </div>
+                    <form id="add-scheme-form" onsubmit="submitScheme(event)">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Scheme Title <span class="required">*</span></label>
+                                <input type="text" name="title" class="form-control" required
+                                       placeholder="e.g. PM Kisan Yojana">
+                            </div>
+                            <div class="form-group">
+                                <label>Scheme Date</label>
+                                <input type="date" name="scheme_date" class="form-control">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>Description <span class="required">*</span></label>
+                            <textarea name="description" class="form-control" required rows="3"
+                                      placeholder="Describe what this scheme is about..."></textarea>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Eligibility</label>
+                                <textarea name="eligibility" class="form-control" rows="2"
+                                          placeholder="Who can apply for this scheme?"></textarea>
+                            </div>
+                            <div class="form-group">
+                                <label>Benefits</label>
+                                <textarea name="benefits" class="form-control" rows="2"
+                                          placeholder="What are the benefits?"></textarea>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Last Date to Apply</label>
+                                <input type="date" name="last_date" class="form-control">
+                            </div>
+                            <div class="form-group">
+                                <label>Official Website URL</label>
+                                <input type="url" name="source_url" class="form-control"
+                                       placeholder="https://...">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>Scheme Poster / Banner (Image)</label>
+                            <input type="file" name="poster" class="form-control file-input"
+                                   accept="image/*">
+                        </div>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-plus"></i> Add Scheme
+                        </button>
+                    </form>
+                </div>
+
+                <!-- Schemes List -->
+                <div class="card">
+                    <div class="card-header-section">
+                        <h3><i class="fas fa-list"></i> All Schemes</h3>
+                        <button class="btn btn-outline btn-sm" onclick="loadAdminSchemes()">
+                            <i class="fas fa-sync-alt"></i> Refresh
+                        </button>
+                    </div>
+                    <div class="table-responsive">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>Title</th>
+                                    <th>Date</th>
+                                    <th>Benefits</th>
+                                    <th>Added By</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody id="admin-schemes-table">
+                                <tr><td colspan="6" style="text-align:center; padding:2rem; color:var(--text-muted);">
+                                    <i class="fas fa-spinner fa-spin"></i> Loading...
+                                </td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+        </main>
+    </div>
+
+    <!-- ======== APPLICATION DETAIL MODAL ======== -->
+    <div class="modal-overlay" id="detail-modal">
+        <div class="modal-box" style="max-width:720px;">
+            <div class="modal-header">
+                <h3><i class="fas fa-id-card"></i> Application Details</h3>
+                <button class="modal-close" onclick="closeDetailModal()">&times;</button>
+            </div>
+            <div class="modal-body" id="detail-modal-body">
+                <p style="text-align:center; color:var(--text-muted);">Loading...</p>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/app.js"></script>
+    <script>
+    // =================================================================
+    // Admin Dashboard Script
+    // =================================================================
+
+    let currentAdmin = null;
+    let allAppsData  = [];  // cached for client-side filter
+    const adminTabs  = ['analytics', 'applications', 'complaints', 'schemes'];
+
+    let appsChartInstance = null;
+    let compsChartInstance = null;
+
+    // On page load
+    document.addEventListener('DOMContentLoaded', () => {
+        currentAdmin = checkAuth('admin');  // redirects if not admin
+        if (!currentAdmin) return;
+
+        document.getElementById('admin-name').textContent = currentAdmin.name;
+        loadAnalytics();
+        loadAdminApplications();
+        loadAdminComplaints();
+        loadAdminSchemes();
+    });
+
+    // -------------------------------------------------------
+    // Tab Switching
+    // -------------------------------------------------------
+    function switchTab(tabId, el) {
+        adminTabs.forEach(t => {
+            const s = document.getElementById(`tab-${t}`);
+            if (s) s.classList.add('hidden');
+        });
+        const target = document.getElementById(`tab-${tabId}`);
+        if (target) target.classList.remove('hidden');
+
+        document.querySelectorAll('.sidebar-nav .nav-link').forEach(l => l.classList.remove('active'));
+        document.querySelectorAll('.navbar-nav .nav-item a').forEach(l => l.classList.remove('active'));
+        if (el) el.classList.add('active');
+    }
+
+    // -------------------------------------------------------
+    // Analytics
+    // -------------------------------------------------------
+    async function loadAnalytics() {
+        try {
+            const res  = await fetch(`${API_BASE}/admin/analytics`);
+            const data = await res.json();
+
+            document.getElementById('stat-users').textContent   = data.total_users;
+            document.getElementById('stat-apps').textContent    = data.total_applications;
+            document.getElementById('stat-comps').textContent   = data.total_complaints;
+            document.getElementById('stat-urgent').textContent  = data.urgent_complaints;
+            document.getElementById('stat-schemes').textContent = data.total_schemes || 0;
+
+            // Applications Pie Chart
+            const appLabels = data.applications_by_status.map(r => r.status);
+            const appCounts = data.applications_by_status.map(r => r.count);
+
+            if (appsChartInstance) appsChartInstance.destroy();
+            appsChartInstance = new Chart(document.getElementById('appsChart'), {
+                type: 'doughnut',
+                data: {
+                    labels: appLabels,
+                    datasets: [{
+                        data: appCounts,
+                        backgroundColor: ['#ffc107','#198754','#dc3545'],
+                        borderWidth: 2
+                    }]
+                },
+                options: {
+                    plugins: { legend: { position: 'bottom' } },
+                    cutout: '65%'
+                }
+            });
+
+            // Complaints Bar Chart
+            const compLabels = data.complaints_by_status.map(r => r.status);
+            const compCounts = data.complaints_by_status.map(r => r.count);
+
+            if (compsChartInstance) compsChartInstance.destroy();
+            compsChartInstance = new Chart(document.getElementById('compsChart'), {
+                type: 'bar',
+                data: {
+                    labels: compLabels,
+                    datasets: [{
+                        label: 'Complaints',
+                        data: compCounts,
+                        backgroundColor: ['#ffc107','#0d6efd','#198754'],
+                        borderRadius: 6
+                    }]
+                },
+                options: {
+                    plugins: { legend: { display: false } },
+                    scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } }
+                }
+            });
+        } catch (e) {
+            console.error('Analytics error:', e);
+        }
+    }
+
+    // -------------------------------------------------------
+    // Load Applications
+    // -------------------------------------------------------
+    async function loadAdminApplications() {
+        try {
+            const res = await fetch(`${API_BASE}/admin/applications`);
+            allAppsData = await res.json();
+            renderApplicationsTable(allAppsData);
+        } catch (e) {
+            document.getElementById('admin-apps-table').innerHTML =
+                `<tr><td colspan="7" style="text-align:center; color:var(--danger); padding:2rem;">
+                    Failed to load. Is Flask server running?
+                </td></tr>`;
+        }
+    }
+
+    function renderApplicationsTable(apps) {
+        const tbody = document.getElementById('admin-apps-table');
+        tbody.innerHTML = '';
+
+        if (!apps.length) {
+            tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; padding:2rem; color:var(--text-muted);">
+                No applications found.
+            </td></tr>`;
+            return;
+        }
+
+        apps.forEach(app => {
+            const actionButtons = `
+                <div style="display:flex; gap:0.4rem; flex-wrap:wrap;">
+                    <button class="btn btn-sm" style="background:#e8f5e9; color:#2e7d32;"
+                            onclick="updateApplication(${app.id}, 'Approved')"
+                            ${app.status === 'Approved' ? 'disabled' : ''}>
+                        <i class="fas fa-check"></i> Approve
+                    </button>
+                    <button class="btn btn-danger btn-sm"
+                            onclick="updateApplication(${app.id}, 'Rejected')"
+                            ${app.status === 'Rejected' ? 'disabled' : ''}>
+                        <i class="fas fa-times"></i> Reject
+                    </button>
+                    <button class="btn btn-sm" style="background:#e3f2fd; color:#1565c0;"
+                            onclick="viewAppDetails(${app.id})">
+                        <i class="fas fa-eye"></i> View
+                    </button>
+                </div>
+            `;
+
+            tbody.innerHTML += `
+                <tr id="app-row-${app.id}">
+                    <td><strong>#${app.id}</strong></td>
+                    <td>
+                        <div style="font-weight:600;">${app.applicant_name}</div>
+                        <div style="font-size:0.78rem; color:var(--text-muted);">${app.full_name || ''}</div>
+                    </td>
+                    <td style="font-size:0.82rem; color:var(--text-muted);">${app.mobile || '—'}</td>
+                    <td>
+                        <span class="badge badge-blue">${app.service_name}</span>
+                    </td>
+                    <td>${fmtDate(app.date)}</td>
+                    <td>${statusBadge(app.status)}</td>
+                    <td>${actionButtons}</td>
+                </tr>
+            `;
+        });
+    }
+
+    // Client-side filter
+    function filterApplicationsTable() {
+        const statusFilter = document.getElementById('filter-status').value;
+        const searchFilter = document.getElementById('filter-search').value.toLowerCase();
+
+        const filtered = allAppsData.filter(app => {
+            const matchStatus = !statusFilter || app.status === statusFilter;
+            const matchSearch = !searchFilter ||
+                (app.applicant_name || '').toLowerCase().includes(searchFilter) ||
+                (app.service_name || '').toLowerCase().includes(searchFilter);
+            return matchStatus && matchSearch;
+        });
+
+        renderApplicationsTable(filtered);
+    }
+
+    // -------------------------------------------------------
+    // Approve / Reject Application
+    // -------------------------------------------------------
+    async function updateApplication(appId, status) {
+        const label = status === 'Approved' ? 'approve' : 'reject';
+        if (!confirm(`Are you sure you want to ${label} Application #${appId}?`)) return;
+
+        try {
+            const res = await fetch(`${API_BASE}/admin/applications/${appId}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ status })
+            });
+            const data = await res.json();
+
+            if (res.ok) {
+                showNotification(
+                    status === 'Approved'
+                        ? `✅ Application #${appId} Approved! Certificate auto-generated.`
+                        : `Application #${appId} Rejected.`,
+                    status === 'Approved' ? 'success' : 'warning'
+                );
+                loadAdminApplications();
+                loadAnalytics();
+            } else {
+                showNotification(data.error, 'error');
+            }
+        } catch (e) {
+            showNotification('Network error', 'error');
+        }
+    }
+
+    // -------------------------------------------------------
+    // View Application Full Details Modal
+    // -------------------------------------------------------
+    async function viewAppDetails(appId) {
+        document.getElementById('detail-modal').classList.add('open');
+        document.getElementById('detail-modal-body').innerHTML =
+            '<p style="text-align:center; padding:2rem;"><i class="fas fa-spinner fa-spin fa-2x"></i></p>';
+        document.body.style.overflow = 'hidden';
+
+        try {
+            const res  = await fetch(`${API_BASE}/admin/applications/${appId}/details`);
+            const data = await res.json();
+
+            if (!data) {
+                document.getElementById('detail-modal-body').innerHTML =
+                    '<p style="color:var(--danger);">Application details not found.</p>';
+                return;
+            }
+
+            // Build details HTML
+            const fields = [
+                ['Service', data.service_name],
+                ['Status', statusBadge(data.status)],
+                ['Full Name', data.full_name],
+                ["Father's Name", data.father_name],
+                ["Mother's Name", data.mother_name],
+                ['Date of Birth', fmtDate(data.date_of_birth)],
+                ['Gender', data.gender],
+                ['Mobile', data.mobile],
+                ['Aadhaar', data.aadhar_number],
+                ['Address', data.address],
+                ['Village/Ward', data.village],
+                ['District', data.district],
+                ['State', data.state],
+                ['PIN Code', data.pincode],
+                ['Occupation', data.occupation],
+                ['Annual Income', data.annual_income ? `₹ ${data.annual_income}` : null],
+                ['Deceased Name', data.deceased_name],
+                ['Date of Death', fmtDate(data.date_of_death)],
+                ['Cause of Death', data.cause_of_death],
+                ['Request Details', data.request_details],
+            ].filter(([k, v]) => v);  // Remove null values
+
+            let detailHtml = '<div class="detail-grid">';
+            fields.forEach(([key, val]) => {
+                detailHtml += `
+                    <div class="detail-item">
+                        <label>${key}</label>
+                        <p>${val}</p>
+                    </div>
+                `;
+            });
+            detailHtml += '</div>';
+
+            // Document links
+            const docs = [
+                ['Photo', data.photo_path],
+                ['Aadhaar Card', data.aadhar_path],
+                ['Ration Card', data.ration_card_path],
+                ['Other Document', data.other_doc_path],
+            ].filter(([k, v]) => v);
+
+            if (docs.length) {
+                detailHtml += `
+                    <div class="form-section-title" style="margin-top:1.25rem;">Uploaded Documents</div>
+                    <div style="display:flex; gap:0.75rem; flex-wrap:wrap; margin-top:0.5rem;">
+                `;
+                docs.forEach(([label, path]) => {
+                    detailHtml += `
+                        <a href="uploads/${path}" target="_blank"
+                           class="btn btn-outline btn-sm">
+                            <i class="fas fa-file"></i> ${label}
+                        </a>
+                    `;
+                });
+                detailHtml += '</div>';
+            }
+
+            // Action buttons at bottom of modal
+            detailHtml += `
+                <div style="display:flex; gap:0.75rem; margin-top:1.5rem; padding-top:1rem; border-top:1px solid #e9ecef;">
+                    <button class="btn btn-success"
+                            onclick="updateApplication(${appId}, 'Approved'); closeDetailModal();"
+                            ${data.status === 'Approved' ? 'disabled' : ''}>
+                        <i class="fas fa-check-circle"></i> Approve & Generate Certificate
+                    </button>
+                    <button class="btn btn-danger"
+                            onclick="updateApplication(${appId}, 'Rejected'); closeDetailModal();"
+                            ${data.status === 'Rejected' ? 'disabled' : ''}>
+                        <i class="fas fa-times-circle"></i> Reject
+                    </button>
+                    ${data.status === 'Approved' ? `
+                    <a href="${API_BASE}/certificates/download/${appId}" target="_blank"
+                       class="btn btn-primary">
+                        <i class="fas fa-download"></i> Download Certificate
+                    </a>` : ''}
+                </div>
+            `;
+
+            document.getElementById('detail-modal-body').innerHTML = detailHtml;
+
+        } catch (e) {
+            document.getElementById('detail-modal-body').innerHTML =
+                '<p style="color:var(--danger);">Error loading details.</p>';
+        }
+    }
+
+    function closeDetailModal() {
+        document.getElementById('detail-modal').classList.remove('open');
+        document.body.style.overflow = '';
+    }
+
+    document.getElementById('detail-modal').addEventListener('click', function(e) {
+        if (e.target === this) closeDetailModal();
+    });
+
+    // -------------------------------------------------------
+    // Load Complaints
+    // -------------------------------------------------------
+    async function loadAdminComplaints() {
+        try {
+            const res       = await fetch(`${API_BASE}/admin/complaints`);
+            const complaints = await res.json();
+            const tbody     = document.getElementById('admin-comps-table');
+            tbody.innerHTML = '';
+
+            if (!complaints.length) {
+                tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; padding:2rem; color:var(--text-muted);">
+                    No complaints yet.
+                </td></tr>`;
+                return;
+            }
+
+            complaints.forEach(c => {
+                const msg  = c.message.length > 70 ? c.message.substring(0, 70) + '...' : c.message;
+                const rowBg = c.urgency_level === 'urgent' ? 'background:#fff5f5;' : '';
+                tbody.innerHTML += `
+                    <tr style="${rowBg}">
+                        <td><strong>#${c.id}</strong></td>
+                        <td style="font-weight:600;">${c.complainer_name}</td>
+                        <td style="font-size:0.85rem;" title="${c.message}">${msg}</td>
+                        <td>${fmtDate(c.date)}</td>
+                        <td>${statusBadge(c.urgency_level)}</td>
+                        <td>${statusBadge(c.status)}</td>
+                        <td>
+                            <select class="form-control" style="width:140px; padding:0.3rem 0.5rem; font-size:0.8rem;"
+                                    onchange="updateComplaint(${c.id}, this.value)">
+                                <option value="" disabled selected>Update Status</option>
+                                <option value="Pending" ${c.status==='Pending'?'disabled':''}>Pending</option>
+                                <option value="In Progress" ${c.status==='In Progress'?'disabled':''}>In Progress</option>
+                                <option value="Resolved" ${c.status==='Resolved'?'disabled':''}>Resolved</option>
+                            </select>
+                        </td>
+                    </tr>
+                `;
+            });
+        } catch (e) {
+            console.error(e);
+        }
+    }
+
+    async function updateComplaint(id, status) {
+        try {
+            const res = await fetch(`${API_BASE}/admin/complaints/${id}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ status })
+            });
+            if (res.ok) {
+                showNotification(`Complaint #${id} marked as "${status}"`, 'success');
+                loadAdminComplaints();
+                loadAnalytics();
+            }
+        } catch (e) {
+            showNotification('Update failed', 'error');
+        }
+    }
+
+    // -------------------------------------------------------
+    // Schemes Management
+    // -------------------------------------------------------
+    async function submitScheme(e) {
+        e.preventDefault();
+        const form     = document.getElementById('add-scheme-form');
+        const formData = new FormData(form);
+
+        try {
+            const res = await fetch(`${API_BASE}/admin/schemes`, {
+                method: 'POST',
+                body: formData
+            });
+            const data = await res.json();
+
+            if (res.ok) {
+                showNotification('✅ Scheme added successfully!', 'success');
+                form.reset();
+                loadAdminSchemes();
+            } else {
+                showNotification(data.error || 'Failed to add scheme', 'error');
+            }
+        } catch (e) {
+            showNotification('Network error', 'error');
+        }
+    }
+
+    async function loadAdminSchemes() {
+        try {
+            const res     = await fetch(`${API_BASE}/schemes`);
+            const schemes = await res.json();
+            const tbody   = document.getElementById('admin-schemes-table');
+            tbody.innerHTML = '';
+
+            if (!schemes.length) {
+                tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; padding:2rem; color:var(--text-muted);">
+                    No schemes added yet.
+                </td></tr>`;
+                return;
+            }
+
+            schemes.forEach(s => {
+                tbody.innerHTML += `
+                    <tr>
+                        <td><strong>#${s.id}</strong></td>
+                        <td>
+                            <div style="font-weight:600;">${s.title}</div>
+                            <div style="font-size:0.78rem; color:var(--text-muted);">
+                                ${s.description.substring(0, 60)}...
+                            </div>
+                        </td>
+                        <td>${fmtDate(s.scheme_date)}</td>
+                        <td style="font-size:0.82rem;">${s.benefits || '—'}</td>
+                        <td>
+                            <span class="badge ${s.added_by === 'admin' ? 'badge-blue' : 'badge-normal'}">
+                                ${s.added_by}
+                            </span>
+                        </td>
+                        <td>
+                            <button class="btn btn-danger btn-sm"
+                                    onclick="deleteScheme(${s.id})">
+                                <i class="fas fa-trash"></i> Remove
+                            </button>
+                        </td>
+                    </tr>
+                `;
+            });
+        } catch (e) {
+            console.error(e);
+        }
+    }
+
+    async function deleteScheme(id) {
+        if (!confirm('Remove this scheme from the portal?')) return;
+        try {
+            const res = await fetch(`${API_BASE}/admin/schemes/${id}`, { method: 'DELETE' });
+            if (res.ok) {
+                showNotification('Scheme removed.', 'info');
+                loadAdminSchemes();
+            }
+        } catch (e) {
+            showNotification('Failed to remove scheme.', 'error');
+        }
+    }
+    </script>
+</body>
+</html>

@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Digital Gram Panchayat — Login</title>
+    <link rel="stylesheet" href="css/style.css">
+    <!-- FontAwesome icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* Auth page overrides */
+        body { background: none; }
+
+        .auth-page {
+            min-height: 100vh;
+            background: linear-gradient(135deg, #001f5b 0%, #003580 55%, #005a9e 100%);
+            display: flex; flex-direction: column;
+        }
+
+        .auth-top-bar {
+            padding: 1rem 2rem;
+            display: flex; align-items: center; justify-content: space-between;
+            background: rgba(0,0,0,0.2);
+        }
+
+        .gov-brand { display: flex; align-items: center; gap: 1rem; }
+
+        .gov-brand .gov-emblem {
+            width: 52px; height: 52px;
+            background: #C8860A; border-radius: 10px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.5rem; color: #fff;
+        }
+
+        .gov-brand .gov-title h2 {
+            color: #fff; font-size: 1rem; font-weight: 700;
+        }
+        .gov-brand .gov-title p {
+            color: rgba(255,255,255,0.7); font-size: 0.75rem;
+        }
+
+        .gov-tagline {
+            color: rgba(255,255,255,0.8); font-size: 0.8rem;
+            text-align: right;
+        }
+        .gov-tagline strong { display: block; color: #fff; }
+
+        /* Main layout */
+        .auth-main {
+            flex: 1; display: flex;
+            align-items: center; justify-content: center;
+            padding: 2rem 1rem;
+            gap: 4rem;
+        }
+
+        /* Left info panel */
+        .auth-info {
+            max-width: 420px; color: #fff;
+        }
+
+        .auth-info h1 {
+            font-size: 2.2rem; font-weight: 800;
+            line-height: 1.2; margin-bottom: 1rem;
+        }
+
+        .auth-info p {
+            font-size: 0.95rem; opacity: 0.85;
+            line-height: 1.7; margin-bottom: 2rem;
+        }
+
+        .service-pills {
+            display: flex; flex-wrap: wrap; gap: 0.5rem;
+        }
+
+        .service-pills span {
+            background: rgba(255,255,255,0.15);
+            border: 1px solid rgba(255,255,255,0.25);
+            color: #fff; padding: 0.3rem 0.8rem;
+            border-radius: 50px; font-size: 0.78rem;
+        }
+
+        /* Auth card */
+        .auth-card {
+            background: #fff;
+            border-radius: 16px;
+            padding: 2.5rem;
+            width: 100%; max-width: 420px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.35);
+        }
+
+        .auth-card-header {
+            text-align: center; margin-bottom: 1.75rem;
+        }
+
+        .auth-card-header .auth-icon {
+            width: 56px; height: 56px;
+            background: linear-gradient(135deg, #003580, #1a4fa0);
+            border-radius: 12px;
+            display: flex; align-items: center; justify-content: center;
+            margin: 0 auto 0.75rem;
+            font-size: 1.5rem; color: #fff;
+        }
+
+        .auth-card-header h2 {
+            font-size: 1.4rem; font-weight: 700;
+            color: #003580; margin-bottom: 0.2rem;
+        }
+
+        .auth-card-header p {
+            color: #6c757d; font-size: 0.85rem;
+        }
+
+        .auth-switch {
+            text-align: center; margin-top: 1.25rem;
+            font-size: 0.875rem; color: #6c757d;
+        }
+
+        .auth-switch a {
+            color: #003580; font-weight: 600;
+            cursor: pointer; text-decoration: underline;
+        }
+
+        /* Footer */
+        .auth-footer {
+            text-align: center; padding: 1rem;
+            color: rgba(255,255,255,0.55); font-size: 0.75rem;
+        }
+
+        @media (max-width: 900px) {
+            .auth-info { display: none; }
+            .auth-main { padding: 1.5rem 1rem; }
+        }
+    </style>
+</head>
+<body>
+    <!-- Toast Notification -->
+    <div id="notification"></div>
+
+    <div class="auth-page">
+        <!-- Top bar -->
+        <div class="auth-top-bar">
+            <div class="gov-brand">
+                <div class="gov-emblem"><i class="fas fa-landmark"></i></div>
+                <div class="gov-title">
+                    <h2>Digital Gram Panchayat Services</h2>
+                    <p>Government of India — Rural Development Portal</p>
+                </div>
+            </div>
+            <div class="gov-tagline">
+                <strong>Helpline: 08482-233133</strong>
+                Available 24x7 | Toll Free
+            </div>
+        </div>
+
+        <!-- Main -->
+        <div class="auth-main">
+            <!-- Left Info -->
+            <div class="auth-info">
+                <h1>Digital Services at Your Doorstep</h1>
+                <p>
+                    Access all Gram Panchayat services online — apply for certificates,
+                    track your applications, file complaints, and receive government scheme
+                    notifications — all in one secure portal.
+                </p>
+                <div class="service-pills">
+                    <span><i class="fas fa-baby"></i> Birth Certificate</span>
+                    <span><i class="fas fa-scroll"></i> Death Certificate</span>
+                    <span><i class="fas fa-rupee-sign"></i> Income Certificate</span>
+                    <span><i class="fas fa-home"></i> Residence Certificate</span>
+                    <span><i class="fas fa-tint"></i> Water Connection</span>
+                    <span><i class="fas fa-bolt"></i> Electricity</span>
+                    <span><i class="fas fa-id-card"></i> Caste Certificate</span>
+                    <span><i class="fas fa-bell"></i> Govt Schemes</span>
+                </div>
+            </div>
+
+            <!-- Auth Card -->
+            <div class="auth-card">
+                <!-- LOGIN FORM -->
+                <form id="login-form" onsubmit="handleLogin(event)">
+                    <div class="auth-card-header">
+                        <div class="auth-icon"><i class="fas fa-sign-in-alt"></i></div>
+                        <h2>Welcome Back</h2>
+                        <p>Login to access your Panchayat services</p>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="log-email"><i class="fas fa-envelope" style="color:#003580; margin-right:5px;"></i> Email Address</label>
+                        <input type="email" id="log-email" class="form-control"
+                               required placeholder="Enter your registered email">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="log-password"><i class="fas fa-lock" style="color:#003580; margin-right:5px;"></i> Password</label>
+                        <input type="password" id="log-password" class="form-control"
+                               required placeholder="Enter your password">
+                    </div>
+
+                    <button type="submit" class="btn btn-primary btn-full btn-lg">
+                        <i class="fas fa-sign-in-alt"></i> Login
+                    </button>
+
+                    <!-- Admin shortcut hint -->
+                    <div style="background:#f0f4ff; border-radius:8px; padding:0.75rem; margin-top:1rem; font-size:0.8rem; color:#003580;">
+                        <i class="fas fa-info-circle"></i>
+                        <strong>Admin:</strong> admin@grampanchayat.gov / admin123
+                    </div>
+
+                    <div class="auth-switch">
+                        Don't have an account?
+                        <a onclick="toggleAuthMode('register')">Register here</a>
+                    </div>
+                </form>
+
+                <!-- REGISTER FORM -->
+                <form id="register-form" class="hidden" onsubmit="handleRegister(event)">
+                    <div class="auth-card-header">
+                        <div class="auth-icon"><i class="fas fa-user-plus"></i></div>
+                        <h2>Create Account</h2>
+                        <p>Register to access Gram Panchayat services</p>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="reg-name"><i class="fas fa-user" style="color:#003580; margin-right:5px;"></i> Full Name</label>
+                        <input type="text" id="reg-name" class="form-control"
+                               required placeholder="Enter your full name">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="reg-email"><i class="fas fa-envelope" style="color:#003580; margin-right:5px;"></i> Email Address</label>
+                        <input type="email" id="reg-email" class="form-control"
+                               required placeholder="Enter your email">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="reg-password"><i class="fas fa-lock" style="color:#003580; margin-right:5px;"></i> Password</label>
+                        <input type="password" id="reg-password" class="form-control"
+                               required placeholder="Create a password (min 6 chars)" minlength="6">
+                    </div>
+
+                    <button type="submit" class="btn btn-primary btn-full btn-lg">
+                        <i class="fas fa-user-plus"></i> Register
+                    </button>
+
+                    <div class="auth-switch">
+                        Already have an account?
+                        <a onclick="toggleAuthMode('login')">Login here</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <div class="auth-footer">
+            &copy; 2026 Digital Gram Panchayat Services &nbsp;|&nbsp; Government of India
+            &nbsp;|&nbsp; All Rights Reserved &nbsp;|&nbsp; Made By Mohd Kaleemuddin
+        </div>
+    </div>
+
+    <script src="js/app.js"></script>
+</body>
+</html>
